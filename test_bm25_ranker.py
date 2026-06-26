@@ -44,6 +44,31 @@ class TestTokenize(unittest.TestCase):
         self.assertEqual(tokens, [])
 
 
+class TestComputeTermFrequencies(unittest.TestCase):
+    """Test the _compute_term_frequencies function."""
+
+    def test_returns_counter_objects(self):
+        """Result should contain Counter objects, not lists."""
+        chunks = ["hello world hello", "python java"]
+        result = _compute_term_frequencies(chunks)
+        self.assertIsInstance(result[0], Counter)
+        self.assertIsInstance(result[1], Counter)
+
+    def test_correct_term_counts(self):
+        """Counter should map terms to their correct frequencies."""
+        chunks = ["hello world hello"]
+        result = _compute_term_frequencies(chunks)
+        self.assertEqual(result[0]['hello'], 2)
+        self.assertEqual(result[0]['world'], 1)
+        self.assertEqual('python' in result[0], False)
+
+    def test_empty_chunk(self):
+        """Empty chunk should return empty Counter."""
+        chunks = [""]
+        result = _compute_term_frequencies(chunks)
+        self.assertEqual(result[0], Counter())
+
+
 class TestBM25Score(unittest.TestCase):
     """Test BM25 score computation."""
 

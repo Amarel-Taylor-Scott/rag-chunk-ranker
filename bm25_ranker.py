@@ -39,7 +39,7 @@ def _compute_term_frequencies(chunks: List[str], stopwords: frozenset = STOPWORD
 
     Returns list of Counter objects mapping terms to their frequency in each chunk.
     """
-    return [_tokenize(chunk, stopwords) and Counter(_tokenize(chunk, stopwords)) for chunk in chunks]
+    return [Counter(_tokenize(chunk, stopwords)) for chunk in chunks]
 
 
 def bm25_score(
@@ -70,16 +70,13 @@ def bm25_score(
 
     len_norm = k1 * (1 - b + b * (doc_len / avg_doc_len))
 
+    idf = log(1.5)  # Simplified constant IDF for all terms (precomputed outside loop)
     for term in query_terms:
         tf = doc_term_freq.get(term, 0)
         if tf == 0:
             continue
         # BM25 term frequency saturation
         tf_component = (tf * (k1 + 1)) / (tf + len_norm)
-        # IDF component (simplified: log((N - n + 0.5) / (n + 0.5)))
-        # Using 1 for N and 1 for n gives log((1-1+0.5)/(1+0.5)) = log(0.5/1.5) ≈ -1.1
-        # For documents where term appears, IDF is positive
-        idf = log(1.5)  # Simplified constant IDF for all terms
         score += tf_component * idf
 
     return score
